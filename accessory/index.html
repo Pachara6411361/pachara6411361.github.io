@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+ 
+<head>
+    <title>Car Accessories</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 60vw;
+        }
+ 
+        th,
+        td {
+            text-align: left;
+            padding: 8px;
+        }
+ 
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+ 
+        .total {
+            font-weight: bold;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+ 
+<body>
+    <h1>Car Accessories</h1>
+ 
+    <form id="accessoryForm">
+        <label for="accessory">Select an accessory:</label>
+        <select id="accessory" name="accessory">
+            <option value="p123">Car Cover</option>
+            <option value="p234">Seat Covers</option>
+            <option value="p456">Floor Mats</option>
+            <option value="p996">Door Visors</option>
+        </select>
+        <br>
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount" min="1" value="1">
+        <br>
+        <button type="button" onclick="addToProductList()">Add</button>
+    </form>
+ 
+    <h2>Product List</h2>
+ 
+    <table id="productList">
+        <tr>
+            <th>Accessory</th>
+            <th>Amount</th>
+            <th>Price</th>
+        </tr>
+    </table>
+ 
+    <p class="total">Total Price: $<span id="totalPrice">0</span></p>
+    VAT <span id="vatAmount"></span><br>
+    NET Price <span id="netPrice"></span>
+
+ 
+    <script>
+     
+ 
+     function addToProductList() {
+            var accessory = $('#accessory').val();
+            var accessoryName = $("#accessory option:selected").text();
+            var amount = $('#amount').val();
+            var price = calculatePrice(accessory);
+
+            var row = `<tr>
+                                <td>${accessoryName}</td>
+                                <td>${amount}</td>
+                                <td>$${(price * amount).toFixed(2)}</td>
+                           </tr>`;
+            $('#productList').append(row);
+
+            updateTotalPrice(price * amount);
+        }
+ 
+        function calculatePrice(accessory) {
+            // Add your own logic to calculate the price based on the selected accessory
+            switch (accessory) {
+                case "p123":
+                    return 50;
+                case "p234":
+                    return 30;
+                case "p456":
+                    return 20;
+                case "p996":
+                    return 40;
+                default:
+                    return 0;
+            }
+        }
+        var totalPrice = 0
+        function updateTotalPrice(price) {
+            totalPrice += price;
+                var vatRate = 0.07;
+                var vatAmount = totalPrice * vatRate;
+                $('#totalPrice').text(totalPrice.toFixed(2));
+                $('#vatAmount').text(vatAmount.toFixed(2));
+                $('#netPrice').text((totalPrice + vatAmount).toFixed(2));
+
+        }
+    </script>
+</body>
+ 
+</html></select></form>
