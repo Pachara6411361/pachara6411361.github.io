@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
- 
+
 <head>
     <title>Car Accessories</title>
     <style>
@@ -8,62 +8,126 @@
             border-collapse: collapse;
             width: 60vw;
         }
- 
+
         th,
         td {
             text-align: left;
             padding: 8px;
         }
- 
+
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
- 
+
         .total {
             font-weight: bold;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 </head>
- 
+
 <body>
     <h1>Car Accessories</h1>
- 
-    <form id="accessoryForm">
-        <label for="accessory">Select an accessory:</label>
-        <select id="accessory" name="accessory">
-            <option value="p123">Car Cover</option>
-            <option value="p234">Seat Covers</option>
-            <option value="p456">Floor Mats</option>
-            <option value="p996">Door Visors</option>
-        </select>
-        <br>
-        <label for="amount">Amount:</label>
-        <input type="number" id="amount" name="amount" min="1" value="1">
-        <br>
-        <button type="button" onclick="addToProductList()">Add</button>
-    </form>
- 
+
+    <button id="openModalBtn">Add New Accessory</button>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="accessoryForm">
+                <label for="accessory">Select an accessory:</label>
+                <select id="accessory" name="accessory">
+                    <option value="p123">Car Cover</option>
+                    <option value="p234">Seat Covers</option>
+                    <option value="p456">Floor Mats</option>
+                    <option value="p996">Door Visors</option>
+                </select>
+                <br>
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" name="amount" min="1" value="1">
+                <br>
+                <button type="button" onclick="addToProductList()">Add</button>
+            </form>
+        </div>
+    </div>
+
     <h2>Product List</h2>
- 
+
     <table id="productList">
         <tr>
             <th>Accessory</th>
             <th>Amount</th>
             <th>Price</th>
+            
         </tr>
     </table>
- 
-    <p class="total">Total Price: $<span id="totalPrice">0</span></p>
-    VAT <span id="vatAmount"></span><br>
-    NET Price <span id="netPrice"></span>
 
- 
+    <p class="total">Gross Price: $<span id="grossPrice">0.00</span></p>
+    VAT: $<span id="vatAmount">0.00</span><br>
+    Total Price: $<span id="totalPrice">0.00</span>
+
     <script>
-     
- 
-     function addToProductList() {
+        $(document).ready(function () {
+            var modal = $('#myModal');
+            var btn = $('#openModalBtn');
+            var span = $('.close');
+
+            btn.click(function () {
+                modal.show();
+            });
+
+            span.click(function () {
+                modal.hide();
+            });
+
+            $(window).click(function (event) {
+                if (event.target == modal[0]) {
+                    modal.hide();
+                }
+            });
+        });
+
+        var totalPrice = 0;
+        var grossPrice = 0;
+        var vatRate = 0.07;
+
+        function addToProductList() {
             var accessory = $('#accessory').val();
             var accessoryName = $("#accessory option:selected").text();
             var amount = $('#amount').val();
@@ -73,14 +137,21 @@
                                 <td>${accessoryName}</td>
                                 <td>${amount}</td>
                                 <td>$${(price * amount).toFixed(2)}</td>
+                                <td><button type="button" onclick="deleteProduct(this, ${price * amount})">Delete</button></td>
                            </tr>`;
             $('#productList').append(row);
 
-            updateTotalPrice(price * amount);
+            updatePrices(price * amount);
+
+            $('#myModal').hide();
         }
- 
+
+        function deleteProduct(button, price) {
+            $(button).closest('tr').remove();
+            updatePrices(-price);
+        }
+
         function calculatePrice(accessory) {
-            // Add your own logic to calculate the price based on the selected accessory
             switch (accessory) {
                 case "p123":
                     return 50;
@@ -94,17 +165,17 @@
                     return 0;
             }
         }
-        var totalPrice = 0
-        function updateTotalPrice(price) {
-            totalPrice += price;
-                var vatRate = 0.07;
-                var vatAmount = totalPrice * vatRate;
-                $('#totalPrice').text(totalPrice.toFixed(2));
-                $('#vatAmount').text(vatAmount.toFixed(2));
-                $('#netPrice').text((totalPrice + vatAmount).toFixed(2));
 
+        function updatePrices(price) {
+            grossPrice += price;
+            var vatAmount = grossPrice * vatRate;
+            totalPrice = grossPrice + vatAmount;
+
+            $('#grossPrice').text(grossPrice.toFixed(2));
+            $('#vatAmount').text(vatAmount.toFixed(2));
+            $('#totalPrice').text(totalPrice.toFixed(2));
         }
     </script>
 </body>
- 
-</html></select></form>
+
+</html>
